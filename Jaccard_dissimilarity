@@ -1,0 +1,159 @@
+library(readxl)
+library(vegan)
+library(DescTools)
+
+ 
+
+### Import the dataset
+
+ 
+
+tab <- read_excel("data/41598_2017_5114_MOESM3_ESM.xls", sheet = 2, .name_repair = "minimal")
+
+ 
+
+# Exercise 1, what does the "sheet" and ".name_repair" arguments mean?
+
+ 
+
+?read_excel
+
+ 
+
+### Let's take a look at the data structure
+
+ 
+
+dim(tab) # the first number is the number of rows, the second number is the number of columns
+# N.B. remember this order as it's consistent throughout R, first come rows and then come columns!
+str(tab)
+head(tab)
+
+ 
+
+### Let's repair the table, we don't want empty rows or columns and we want MEANINGFUL column names
+
+ 
+
+headers <- c("Life_Form", "Alien/Native", "Species") # here we reshape ex novo the first three column names
+islands <- paste(names(tab)[4:ncol(tab)], tab[1, 4:ncol(tab)], sep = " ") # here we combine island name and time period
+headers <- c(headers, islands) # finally, we paste everything together
+
+ 
+
+head(tab)
+dim(tab)
+
+ 
+
+tab <- tab[4:nrow(tab), ]
+names(tab) <- headers
+
+ 
+
+### Let's give a check to the current table
+
+ 
+
+head(tab)
+dim(tab)
+str(tab) # It seems the occurence matrix is wrongly encoded as "character", instead of being "integer"
+
+ 
+
+### Let's convert the occurence matrix to "integer", a particular case of "numeric" type
+
+ 
+
+species <- sapply(tab[, 4:ncol(tab)], as.integer)
+tab <- cbind.data.frame(tab[, 1:3], species) # and bind everything back together
+
+ 
+
+### Exercise 2, check the current data structure
+
+ 
+
+______
+______
+______
+
+ 
+
+### The dataset is almost ready but there could be some errors, let's check if there's any NAs
+
+ 
+
+anyNA(tab[, 1:3])
+anyNA(species)
+which(is.na(species), arr.ind = T)
+species[which(is.na(species), arr.ind = T)] <- 0
+
+ 
+
+### Let's build the "final" dataset
+
+ 
+
+tab <- cbind.data.frame(tab[, 1:3], species)
+anyNA(tab)
+
+
+occ <- sum(tab[, 4:ncol(tab)])
+occ
+
+ 
+
+### How many species in total?
+
+ 
+
+sp <- sum(rowSums(tab[, 4:ncol(tab)]) > 0)
+sp
+### How many species in 1830 - 1950
+
+ 
+
+sp_1900 <- sum(rowSums(tab[, grep("1830-1950", names(tab))]) > 0)
+sp_1900
+
+occ <- sum(tab[, 4:ncol(tab)])
+occ
+
+ 
+
+### How many species in total?
+
+ 
+
+sp <- sum(rowSums(tab[, 4:ncol(tab)]) > 0)
+sp
+
+ 
+
+### How many species in 1830 - 1950
+
+ 
+
+sp_1900 <- sum(rowSums(tab[, grep("1830-1950", names(tab))]) > 0)
+sp_1900
+
+ 
+
+### How many species in 1951 - 2015
+
+ 
+
+sp_2000 <- sum(rowSums(tab[, grep("1951-2015", names(tab))]) > 0)
+sp_2000
+
+ 
+
+### Exercise 3, which is the difference among 1951 - 2015 and 1830 - 1950 in percentage?
+
+ 
+
+diff_sp <- ((sp_2000 - sp_1900) / sp_1900) * 100
+diff_sp
+round(diff_sp, 1)
+paste(round(diff_sp, 1), "%", sep = "")
