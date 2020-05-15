@@ -44,8 +44,8 @@ summary(sars::sar_power(dat))
 
 install.packages("betapart")
 install.packages("vegan")
-library..
-....
+library(betapart)
+library(vegan)
 
 
 data(BCI)       # load   barrioo colorado island, artificial arcipelago in south america, marine researve
