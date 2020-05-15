@@ -135,17 +135,17 @@ nat_2000 <- sp_2000 - al_2000                                        # 1360
 ### How much similar are the floras of the two periods?
 
 floras_time <- data.frame(Species = tab$Species,
-                          old_flora = as.numeric(rowSums(tab[, grep("1830-1950", names(tab))]) > 0),
+                          old_flora = asnkl.numeric(rowSums(tab[, grep("1830-1950", names(tab))]) > 0),
                           new_flora = as.numeric(rowSums(tab[, grep("1951-2015", names(tab))]) > 0),
                           Life_Form = tab$Life_Form,
                           `Alien/Native` = tab$`Alien/Native`)
 head(floras_time)
-dist_jacc <- vegdist(floras_time[, 2:3], method = "jaccard")           ##In vegdist(floras_time[, 2:3], method = "jaccard") :  you have empty rows: their dissimilarities may be meaningless in method “jaccard” 2: In vegdist(floras_time[, 2:3], method = "jaccard") : missing values in results
-floras_time[which(rowSums(floras_time[, 2:3]) == 0), 1]                ## build the rows..!
+dist_jacc <- vegdist(floras_time[, 2:3], method = "jaccard")               ##In vegdist(floras_time[, 2:3], method = "jaccard") :  you have empty rows: their dissimilarities may be meaningless in method “jaccard” 2: In vegdist(floras_time[, 2:3], method = "jaccard") : missing values in results
+floras_time[which(rowSums(floras_time[, 2:3]) == 0), 1]                    ## build the rows..!
 floras_time <- floras_time[-which(rowSums(floras_time[, 2:3]) == 0), ]
 dist_jacc <- vegdist(t(floras_time[, 2:3]), method = "jaccard")
 sim_jacc <- 1 - dist_jacc
-round(sim_jacc, 2)                                                     # old_flora/ new_flora      0.72
+round(sim_jacc, 2)                                                          # old_flora/ new_flora      0.72
 
 ### Let's make a barplot of native and alien species in 1830 - 1950 vs 1951 - 2015
 
@@ -195,9 +195,9 @@ lf_tab <- matrix(c(sum(floras_time$old_flora[floras_time$Life_Form_Simpl == "AH"
                    sum(floras_time$new_flora[floras_time$Life_Form_Simpl == "W"])),
                    ncol = 2)
 lf_tab                                                       #      [,1] [,2]
-                                                             #[1,]  636  588   annual= Therophyte
-                                                             #[2,]  690  633   perennial= Camephyte
-                                                             #[3,]  275  320   woody= Phanerophyte
+                                                             #[1,]  636  588   annual
+                                                             #[2,]  690  633   perennial
+                                                             #[3,]  275  320   woody
 GTest(lf_tab, correct = "none")                              #G = 6.6002, X-squared df = 2, p-value = 0.03688
 
 
@@ -238,7 +238,7 @@ barplot(mat_lf,
 
 ### Let's check the native species and the alien spiecies
 
-sr_natives <- specnumber(tab[tab$`Alien/Native` == "N", 3:ncol(tab)], MARGIN = 2)
+sr_natives <- specnumber(tab[tab$`Alien/Native` == "N", 3:ncol(tab)], MARGIN = 2)      # create aggregation and matrix model for species relationship
 sr_aliens <- specnumber(tab[tab$`Alien/Native` == "A", 3:ncol(tab)], MARGIN = 2)
 sr_natives_1900 <- sr_natives[grep("1830-1950", names(sr_natives))]
 sr_natives_2000 <- sr_natives[grep("1951-2015", names(sr_natives))]
@@ -290,7 +290,7 @@ text(x = 240, y = 820,
 mod_aliens <- lm(sr_aliens_2000 ~ sr_aliens_1900, sr_tab)                                 # Fitting Linear Models
 mod_aliens                                                                                # Coefficients: (Intercept)  sr_natives_1900   
 summary(mod_aliens)                                                                       # Estimate Std. Error t value Pr(>|t|)
-
+kp
 plot(sr_aliens_1900, sr_aliens_2000,
      xlab = "Number of aliens species (1900)",
      ylab = "Number of aliens species (2000)")                                            # plot species richness
@@ -348,11 +348,11 @@ dev.off()
 
 tab_al <- tab[tab$`Alien/Native` == "A", 4:ncol(tab)]
 
-mat_change_al <- matrix(ncol = 16, nrow = nrow(tab_al))                                            #data frame
+mat_change_al <- matrix(ncol = 16, nrow = nrow(tab_al))                                            # data frame
 colnames(mat_change_al) <- c("Argentario", "Argentarola", "Capraia", "Cerboli", "Elba",
                           "Fobu", "Formica Grande", "Giannutri", "Giglio", "Gorgona",
                           "Isolotto Porto Ercole", "Montecristo", "Palmaiola", "Pianosa",
-                          "Scarpa", "Scola")                                                       #column names
+                          "Scarpa", "Scola")                                                       # column names
 for (i in 1:16) {                                                                                  # for function, to make a model/algorithm
         tmp <- tab_al[, c(i, 16+i)]
         tmp2 <- ifelse(tmp[, 1] == 1 & tmp[, 2] == 1, "Stable",
@@ -361,13 +361,13 @@ for (i in 1:16) {                                                               
         mat_change_al[, i] <- tmp2
 }
 
-df_change_al <- as.data.frame(mat_change_al)                                                       #data.frame to build matrix of changes in aliens sp
+df_change_al <- as.data.frame(mat_change_al)                                                       # data.frame to build matrix of changes in aliens sp
 
-install.packages ("tidyverse")                                                                     #install.packages "tidyverse
+install.packages ("tidyverse")                                                                     # install.packages "tidyverse
 
 library(tidyverse)
 
-df_change_al <- pivot_longer(df_change_al, cols = 1:16)                                            #Pivot data from wide to long
+df_change_al <- pivot_longer(df_change_al, cols = 1:16)                                            # Pivot data from wide to long
 
 df_change_al <- df_change_al %>% 
         filter(value != "Not Present") %>% 
@@ -431,7 +431,7 @@ sar_nat_1900                                                                    
 summary(sar_nat_1900)                                                                      # all the parameters
 
 plot(sr_tab$area, sr_tab$sr_natives_1900,                                                  # plot ISARs for natives 1900
-     xlab = expression(paste("Island area (", km^2, ")", sep = "")),                                                                                      # in this way I have a label for column and row... so 4 instead 8 
+     xlab = (""),                                                                          # in this way I have a label for column and row... so 4 instead 8 
      ylab = "Number of native species",
      main = "1830-1950",
      ylim = c(0, 1500))
@@ -451,8 +451,8 @@ sar_nat_2000
 summary(sar_nat_2000)                                                                      
 
 plot(sr_tab$area, sr_tab$sr_natives_2000,                                                 
-     xlab = expression(paste("Island area (", km^2, ")", sep = "")),
-     ylab = "Number of native species",
+     xlab = (""),
+     ylab = (""),
      main = "1951-2015",
      ylim = c(0, 1500))
 curve(coef(sar_nat_2000)[1]*x^coef(sar_nat_2000)[2],
@@ -469,7 +469,7 @@ summary(sar_aliens_1900)
 plot(sr_tab$area, sr_tab$sr_aliens_1900,                                                 
      xlab = expression(paste("Island area (", km^2, ")", sep = "")),
      ylab = "Number of aliens species",
-     #main = "1830-1950",
+     #main = "1830-1950", or ("")
      ylim = c(0, 150))
 curve(coef(sar_aliens_1900)[1]*x^coef(sar_aliens_1900)[2],
       add = T, from = 0, to = 250, col = 'red', lwd = 2)
@@ -484,14 +484,11 @@ summary(sar_aliens_2000)
 
 plot(sr_tab$area, sr_tab$sr_aliens_2000,                                                 
      xlab = expression(paste("Island area (", km^2, ")", sep = "")),
-     ylab = "Number of aliens species",
+     ylab = (""),
      #main = "1951-2015",
      ylim = c(0, 150))
 curve(coef(sar_aliens_2000)[1]*x^coef(sar_aliens_2000)[2],
       add = T, from = 0, to = 250, col = 'red', lwd = 2) 
-
-
-
 
 
 ### ISARs according to growth form
@@ -509,22 +506,119 @@ sr_tab$sr_peren_herb_2000 <- sr_peren_herb[grep("1951-2015", names(sr_peren_herb
 ### Woody plants can have two different life forms according to Raunkiaer, "P" (= Phanerophytes)
 ### and "Ch" (= Chamaephytes)
 
-
-
+sr_woody <- specnumber(tab[tab$Life_Form %in% c("P", "Ch"), 3:ncol(tab)], MARGIN = 2)
+sr_tab$sr_woody_1900 <- sr_woody[grep("1830-1950", names(sr_woody))]
+sr_tab$sr_woody_2000 <- sr_woody[grep("1951-2015", names(sr_woody))]
 
 
 ### Exercise 12, reproduce the multipanel plot of page 11 (bottom) 
 ### of BioMac_Lecture_09_2020_04_16_IBT_case_study.odp /.pdf
 
+##### make a par plot of the 6 graphts fo sr_life form
+
+par(mfrow = c(3,2))                                                                        # par plot 3x2
 
 
+### ISARs annual herbaceus plants species 1900
+
+sar_annual_1900 <- nls(sr_annual_1900 ~ SSarrhenius(area, k, z), data = sr_tab)            # Nonlinear regression model model: sr_natives_1900 ~ SSarrhenius(area, k, z) data: sr_tab
+sar_annual_1900                                                                            #  k        z 
+                                                                                           # 252.0522   0.2954      residual sum-of-squares: 89305
+summary(sar_annual_1900)                                                                      
+
+plot(sr_tab$area, sr_tab$sr_annual_1900,                                                   # plot ISARs for natives 1900
+     xlab = (""),                                                                          # in this way I have a label for column and row... so 4 instead 8 
+     ylab = "Annual species",
+     main = "1830-1950",
+     ylim = c(0, 600))
+curve(coef(sar_annual_1900)[1]*x^coef(sar_annual_1900)[2],
+      add = T, from = 0, to = 250, col = 'green', lwd = 2)                                  # curve line related at the angular coefficient
+
+### Exercise 10, calculate ISARs for native species in 1951-2015 
+### and for alien species in both periods, then compose the multipanel image (2x2)
+### you can see on page 11 (top) of BioMac_Lecture_09_2020_04_16_IBT_case_study.odp /.pdf
+### N.B. use the correct labels on the correct panels by xlab, ylab and main arguments
+
+##########ISARs of annual herbaceus plants species 2000
+
+sar_annual_2000 <- nls(sr_annual_2000 ~ SSarrhenius(area, k, z), data = sr_tab)              
+sar_annual_2000                                                                               
+                                                                                           
+summary(sar_annual_2000)                                                                      
+
+plot(sr_tab$area, sr_tab$sr_annual_2000,                                                 
+     xlab = (""),
+     ylab = (""),
+     main = "1951-2015",
+     ylim = c(0, 600))
+curve(coef(sar_annual_2000)[1]*x^coef(sar_annual_2000)[2],
+      add = T, from = 0, to = 250, col = 'green', lwd = 2)  
+
+########## ISARs for perennial herbaceus 1900
 
 
+sar_peren_herb_1900 <- nls(sr_peren_herb_1900 ~ SSarrhenius(area, k, z), data = sr_tab)              #Nonlinear regression model model: sr_natives_1900 ~ SSarrhenius(area, k, z) data: sr_tab
+sar_peren_herb_1900                                                                               
+                                                                                         
+summary(sar_peren_herb_1900)                                                                      
+
+plot(sr_tab$area, sr_tab$sr_peren_herb_1900,                                                 
+     xlab = (""),
+     ylab = "Perenniel Herbaceus species",
+     #main = "1830-1950", or ("")
+     ylim = c(0, 600))
+curve(coef(sar_peren_herb_1900)[1]*x^coef(sar_peren_herb_1900)[2],
+      add = T, from = 0, to = 250, col = 'red', lwd = 2)
 
 
+########## ISARs for perennial herbaceus species 2000
 
-### 
+sar_peren_herb_2000 <- nls(sr_peren_herb_2000 ~ SSarrhenius(area, k, z), data = sr_tab)              
+sar_peren_herb_2000                                                                               
+                                                                                           
+summary(sar_peren_herb_2000)                                                                      
 
+plot(sr_tab$area, sr_tab$sr_peren_herb_2000,                                                 
+     xlab = (""),
+     ylab = (""),
+     #main = "1951-2015",
+     ylim = c(0, 600))
+curve(coef(sar_peren_herb_2000)[1]*x^coef(sar_peren_herb_2000)[2],
+      add = T, from = 0, to = 250, col = 'red', lwd = 2) 
+
+############ SAR for woody plants species 1900
+
+sar_woody_1900 <- nls(sr_woody_1900 ~ SSarrhenius(area, k, z), data = sr_tab)              #Nonlinear regression model model: sr_natives_1900 ~ SSarrhenius(area, k, z) data: sr_tab
+sar_woody_1900                                                                               
+                                                                                         
+summary(sar_woody_1900)                                                                      
+
+plot(sr_tab$area, sr_tab$sr_woody_1900,                                                 
+     xlab = expression(paste("Island area (", km^2, ")", sep = "")),
+     ylab = "Woody Species",
+     #main = "1830-1950", or ("")
+     ylim = c(0, 600))
+curve(coef(sar_woody_1900)[1]*x^coef(sar_woody_1900)[2],
+      add = T, from = 0, to = 250, col = 'red', lwd = 2)
+
+
+########## ISARs for woody plants species 2000
+
+sar_woody_2000 <- nls(sr_woody_2000 ~ SSarrhenius(area, k, z), data = sr_tab)              
+sar_woody_2000                                                                               
+                                                                                           
+summary(sar_woody_2000)                                                                      
+
+plot(sr_tab$area, sr_tab$sr_woody_2000,                                                 
+     xlab = expression(paste("Island area (", km^2, ")", sep = "")),
+     ylab = (""),
+     #main = "1951-2015",
+     ylim = c(0, 600))
+curve(coef(sar_woody_2000)[1]*x^coef(sar_woody_2000)[2],
+      add = T, from = 0, to = 250, col = 'red', lwd = 2) 
+
+
+##Bellaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!!!
 
 
 
