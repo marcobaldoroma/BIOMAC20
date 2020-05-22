@@ -453,31 +453,6 @@ BCI.decay.pow$pseudo.r.squared
 BCI.decay.exp$model
 BCI.decay.pow$model
 
-### Exercise 3, display distance decay patterns for the "mite" dataset (from vegan), fit the power
-### and the exponential model for the overall beta diversity according to 
-### Sorensen ($beta.sor component of beta.pair()) and evaluate the two models.
-### Plot location can be found in "mite.xy", use the function data() to load the two matrices.
-### Remember to transform the abundance matrix into a presence/absence matrix
-### before calculating beta diversity
-
-?mite
-
-
-BCI.decay.exp <- decay.model(dissim.BCI, spat.dist, model.type = "exp", perm = 100)
-BCI.decay.exp
-
-BCI.decay.exp <- decay.model(dissim.BCI, spat.dist, model.type = "exp", perm = 100)
-BCI.decay.exp
-
- 
-
-BCI.decay.pow <- decay.model(dissim.BCI, spat.dist, model.type = "pow", perm = 100)
-BCI.decay.pow
-
- 
-
-plot.decay(BCI.decay.exp, col = "red", remove.dots = TRUE, add = TRUE)
-plot.decay(BCI.decay.pow, col = "blue", remove.dots = TRUE, add = TRUE)
 
 #R^2 the greater the better
 #AIC the smaller the better
@@ -496,16 +471,37 @@ library(vegan)
 
 #remember to load vegan package before loading the dataset
 
-mite.decay.exp <- decay.model(dissim.mite, spat.dist, model.type = "exp", perm = 100)  # perm = permutated
+data(mite)
+head(mite)
+
+v <- sample(1:70,35)
+
+d<-mite[v,]
+f<-mite[-v,]
+
+sr_d <- specnumber(d)
+sr_f <- specnumber(f)
+
+spat.dist_mite <- dist(mite[, 1:35])    # packages SPAT statistical default pack. R. distance euclidea!!!
+
+dissim.mite <- beta.pair(mite)$beta.sor
+
+plot(spat.dist_mite, dissim.mite, ylim = c(0.1, 0.6), xlim = c(0, max(spat.dist_mite)))  
+
+mite.decay.exp <- decay.model(dissim.mite, spat.dist_mite, model.type = "exp", perm = 100)  # perm = permutated
 mite.decay.exp
 
-mite.decay.pow <- decay.model(dissim.mite, spat.dist, model.type = "pow", perm = 100)  # we specify the dissimilarity, after the spatial distamce, the model.type, in the end permutation= in order to see significats patter
+mite.decay.pow <- decay.model(dissim.mite, spat.dist_mite, model.type = "pow", perm = 100)  # we specify the dissimilarity, after the spatial distamce, the model.type, in the end permutation= in order to see significats patter
 mite.decay.pow
 
+plot.decay(mite.decay.exp, col = "red", remove.dots = TRUE, add = TRUE)
+plot.decay(mite.decay.pow, col = "blue", remove.dots = TRUE, add = TRUE)
 
 
-
-
+mite.decay.exp$pseudo.r.squared
+mite.decay.pow$pseudo.r.squared
+mite.decay.exp$model
+mite.decay.pow$model
 
 
 ### Rarefaction
@@ -556,3 +552,43 @@ rarecurve(dune_agg)
 # http://www.nnb.isprambiente.it/it/il-network   # https://www.biodiversityireland.ie/      http://www.reportingdirettivahabitat.it/     http://euroveg.org/eva-database    https://www.idiv.de/en/splot.html
 # https://www.try-db.org/TryWeb/Home.php   https://www.gbif.org/  is coordinate from coopenaghen 
 # https://www.lifewatch.eu/
+
+
+par(mfrow=c(1,2))
+hist(sr_d, xlim = c(75,110))
+hist(sr_f, xlim = c(75,110))
+
+ 
+
+t.test(sr_d,sr_f)
+
+ 
+
+
+jac_d <- vegdist(d, method = "jaccard")
+jac_f <- vegdist(f, method = "jaccard")
+
+ 
+
+par(mfrow=c(1,2))
+hist(jac_d)
+hist(jac_f)
+
+ 
+
+t.test(jac_d, jac_f)
+
+ 
+
+sor_d <- vegdist(d, method = "bray")
+sor_f <- vegdist(f, method = "bray")
+
+ 
+
+par(mfrow=c(1,2))
+hist(sor_d)
+hist(sor_f)
+
+ 
+
+t.test(sor_d,sor_f)
