@@ -446,7 +446,7 @@ plot.decay(BCI.decay.exp, col = "red", remove.dots = TRUE, add = TRUE)
 plot.decay(BCI.decay.pow, col = "blue", remove.dots = TRUE, add = TRUE)
 
 ## we fit different model to check the best model for our analysis, the model the we can use to better fit the relation on my informations
-# akaike acaico information criterio
+# akaike  information criterio
 
 BCI.decay.exp$pseudo.r.squared
 BCI.decay.pow$pseudo.r.squared
@@ -479,8 +479,8 @@ BCI.decay.pow
 plot.decay(BCI.decay.exp, col = "red", remove.dots = TRUE, add = TRUE)
 plot.decay(BCI.decay.pow, col = "blue", remove.dots = TRUE, add = TRUE)
 
-R^2 the greater the better
-AIC the smaller the better
+#R^2 the greater the better
+#AIC the smaller the better
 
 ### Exercise 3, display distance decay patterns for the "mite" dataset (from vegan), fit the power
 ### and the exponential model for the overall beta diversity according to 
@@ -494,7 +494,17 @@ AIC the smaller the better
 library(vegan)
 ?mite
 
-remember to load vegan package before loading the dataset
+#remember to load vegan package before loading the dataset
+
+mite.decay.exp <- decay.model(dissim.mite, spat.dist, model.type = "exp", perm = 100)  # perm = permutated
+mite.decay.exp
+
+mite.decay.pow <- decay.model(dissim.mite, spat.dist, model.type = "pow", perm = 100)  # we specify the dissimilarity, after the spatial distamce, the model.type, in the end permutation= in order to see significats patter
+mite.decay.pow
+
+
+
+
 
 
 
@@ -539,5 +549,10 @@ rarecurve(dune_agg)
     
 
 
-
-
+### LESSON ABOUT BIG DATA
+# BGCI botanical garden collection of international , here you can find the infomation about vegetation of the world 
+# florence herbarium is the biggest in italy, is a museum for the veg data
+# another web site Network National Biodiversity of Italy!! very good one!
+# http://www.nnb.isprambiente.it/it/il-network   # https://www.biodiversityireland.ie/      http://www.reportingdirettivahabitat.it/     http://euroveg.org/eva-database    https://www.idiv.de/en/splot.html
+# https://www.try-db.org/TryWeb/Home.php   https://www.gbif.org/  is coordinate from coopenaghen 
+# https://www.lifewatch.eu/
