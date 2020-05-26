@@ -1,0 +1,429 @@
+# Rarefaction and GBIF 
+
+#R^2 the greater the better
+#AIC the smaller the better
+
+### Exercise 3, display distance decay patterns for the "mite" dataset (from vegan), fit the power
+### and the exponential model for the overall beta diversity according to 
+### Sorensen ($beta.sor component of beta.pair()) and evaluate the two models.
+### Plot location can be found in "mite.xy", use the function data() to load the two matrices.
+### Remember to transform the abundance matrix into a presence/absence matrix
+### before calculating beta diversity
+
+# Aikaiko Information Criteria and the R^2 statistical informations
+
+ 
+
+library(vegan)
+?mite
+
+#remember to load vegan package before loading the dataset
+
+data(mite)
+head(mite)
+
+v <- sample(1:70,35)
+
+d<-mite[v,]
+f<-mite[-v,]
+
+sr_d <- specnumber(d)
+sr_f <- specnumber(f)
+
+spat.dist_mite <- dist(mite[, 1:35])    # packages SPAT statistical default pack. R. distance euclidea!!!
+
+dissim.mite <- beta.pair(mite)$beta.sor
+
+plot(spat.dist_mite, dissim.mite, ylim = c(0.1, 0.6), xlim = c(0, max(spat.dist_mite)))  
+
+mite.decay.exp <- decay.model(dissim.mite, spat.dist_mite, model.type = "exp", perm = 100)  # perm = permutated
+mite.decay.exp
+
+mite.decay.pow <- decay.model(dissim.mite, spat.dist_mite, model.type = "pow", perm = 100)  # we specify the dissimilarity, after the spatial distamce, the model.type, in the end permutation= in order to see significats patter
+mite.decay.pow
+
+plot.decay(mite.decay.exp, col = "red", remove.dots = TRUE, add = TRUE)
+plot.decay(mite.decay.pow, col = "blue", remove.dots = TRUE, add = TRUE)
+
+
+mite.decay.exp$pseudo.r.squared
+mite.decay.pow$pseudo.r.squared
+mite.decay.exp$model
+mite.decay.pow$model
+
+
+### the right code
+    
+data(mite)
+data(mite.xy)
+
+
+mite_dist <- dist(mite.xy)
+
+
+mite <- decostand(mite, "pa")
+mite_dissim <- beta.pair(mite)$beta.sor
+
+
+plot(mite_dist, mite_dissim, xlim = c(0, max(mite_dist)), las = 1,
+     xlab = "Spatial distance (m.)", ylab = "Sorensen's dissimilarity")
+
+
+mite_decay_exp <- decay.model(mite_dissim, mite_dist, model.type = "exp", perm = 100)
+mite_decay_exp
+
+
+mite_decay_pow <- decay.model(mite_dissim, mite_dist, model.type = "pow", perm = 100)
+mite_decay_pow
+
+
+plot.decay(mite_decay_exp, col = "red", remove.dots = TRUE, add = TRUE)
+plot.decay(mite_decay_pow, col = "blue", remove.dots = TRUE, add = TRUE)
+
+
+mite_decay_exp$pseudo.r.squared
+mite_decay_pow$pseudo.r.squared
+mite_decay_exp$model
+mite_decay_pow$model
+
+# we can see 
+
+### Rarefaction
+# It is not about presence absence, is another criteria usefull in gbif and community ecology
+# It is used when there is an decresing number of individuals. You can rarefine the lower number of individuals by individuals or by samples i.g. plots. the second is used in biogeography and macroecology
+
+
+# vegan datase= dune
+
+data(dune)
+data(dune.env)
+
+?dune # have a look at the matrix, is related at the soil and cerambers, SF is used for standard farming
+
+summary(dune.env$A1)  # we give A1 to split the dataset! we can look for the average or media of the dataset, A1 is used for dataframe as well as matrix
+
+dune_la <- dune[dune.env$A1 <= 4.2, ] # split the dataset less 4.2
+dune_ha <- dune[dune.env$A1 > 4.2, ]  # split dataset with values major 4.2,  so higer fitness
+dim....
+dim(dune_ha)
+
+rowSums(dune)
+
+raremax <- min(rowSums(dune))  # the maximum value that we can rarefy. 
+raremax
+
+?rarecurve
+rarecurve(dune_la, sample = raremax)  # the first grapht we have the simplest rarefation curve, by individuals and species, you should read from right to left. You can plot just your dataset with the sample size
+rarecurve(dune_ha, sample = raremax)  # the number is the number of individuals
+rarefy(dune_la, sample = raremax)
+rarefy(dune_ha, sample = raremax)
+
+# we can aggregate the datasets splited 
+
+dune_la_agg <- colSums(dune_la)
+dune_ha_agg <- colSums(dune_ha)
+
+dune_agg <- rbind(dune_la_agg, dune_ha_agg)
+row.names(dune_agg) <- c("Low altitude", "High altitude")
+
+rarecurve(dune_agg)
+
+### Rarefaction curves show the expected number of species found in each plot 
+### given an increasing number of sampled individuals
+
+### Analogously, accumulation curves show the expected number of species 
+### given an increasing number of sampled forest fragments, you can check "specaccum" function from vegan
+
+### You can also estimate the number of species found in each plot
+### by using abundance-based species richness estimators, like Chao1 and ACE, you can check "estimateR" function from vegan
+
+### Finally, you can also estimate the number of species in the dataset, or in groups of plots,
+### according to sample-based diversity estimators like Jackknife, you can check "specpool" function from vegan
+
+### BEWARE, these techniques are used for different, although similar, purposes and they hold
+### DIFFERENT degrees of robustness!
+    
+
+
+### LESSON ABOUT BIG DATA
+# BGCI botanical garden collection of international , here you can find the infomation about vegetation of the world 
+# florence herbarium is the biggest in italy, is a museum for the veg data
+# another web site Network National Biodiversity of Italy!! very good one!
+# http://www.nnb.isprambiente.it/it/il-network   # https://www.biodiversityireland.ie/      http://www.reportingdirettivahabitat.it/     http://euroveg.org/eva-database    https://www.idiv.de/en/splot.html
+# https://www.try-db.org/TryWeb/Home.php   https://www.gbif.org/  is coordinate from coopenaghen 
+# https://www.lifewatch.eu/
+
+
+par(mfrow=c(1,2))
+hist(sr_d, xlim = c(75,110))
+hist(sr_f, xlim = c(75,110))
+
+ 
+
+t.test(sr_d,sr_f)
+
+ 
+
+
+jac_d <- vegdist(d, method = "jaccard")
+jac_f <- vegdist(f, method = "jaccard")
+
+ 
+
+par(mfrow=c(1,2))
+hist(jac_d)
+hist(jac_f)
+
+ 
+
+t.test(jac_d, jac_f)
+
+ 
+
+sor_d <- vegdist(d, method = "bray")
+sor_f <- vegdist(f, method = "bray")
+
+ 
+
+par(mfrow=c(1,2))
+hist(sor_d)
+hist(sor_f)
+
+ 
+
+t.test(sor_d,sor_f)
+
+
+##############################
+
+### Install "betapart", a package from Baselga & Orme 2012, to partition betadiversity
+### into its turnover and nestedness components https://doi.org/10.1111/j.2041-210X.2012.00224.x
+
+install.packages("betapart")
+
+### Load required packages
+
+library(vegan)
+library(betapart)
+
+### Load the dataset "Barrio Colorado Islands"
+
+data(BCI)
+
+### And check the structure
+
+str(BCI)
+
+### Calculate and plot species richness at plot-level for the entire dataset
+
+sr <- specnumber(BCI)
+hist(sr,
+     breaks = 20,
+     xlab = "Species Richness",
+     ylab = "Number of plots",
+     main = "")
+
+### Calculate distance and similarity metrics among pairs of plots and multiple plots
+
+BCI <- decostand(BCI, "pa") # transform the abundance matrix into a presence/absence matrix
+
+str(BCI)
+
+vegdist(BCI[1:2, ], method = "jaccard")
+1 - vegdist(BCI[1:2, ], method = "jaccard")
+vegdist(BCI[2:3, ], method = "jaccard")
+vegdist(BCI[1:3, ], method = "jaccard")
+vegdist(BCI, method = "jaccard")
+hist(vegdist(BCI, method = "jaccard"),
+     xlab = "Jaccard's dissimilarity metric",
+     ylab = "Number of pairs",
+     main = "")
+
+hist(vegdist(BCI, method = "bray"),
+     xlab = "Sorensen's dissimilarity metric",
+     ylab = "Number of pairs",
+     main = "")
+
+par(mfrow = c(1, 2))
+hist(vegdist(BCI, method = "jaccard"),
+     xlab = "Jaccard's dissimilarity metric",
+     ylab = "Number of pairs",
+     main = "")
+hist(vegdist(BCI, method = "bray"),
+     xlab = "Sorensen's dissimilarity metric",
+     ylab = "Number of pairs",
+     main = "")
+par(mfrow = c(1, 1))
+
+### Partitioning beta diversity
+
+beta.multi(BCI)
+beta.multi(BCI[1:2, ])
+beta.multi(BCI[1:3, ])
+
+beta.pair(BCI[1:3, ])
+beta.pair(BCI)
+boxplot(beta.pair(BCI))
+boxplot(beta.pair(BCI),
+        names = c("Turnover", "Nestedness", "Total beta"))
+
+par(mfrow = c(1, 2))
+boxplot(beta.pair(BCI),
+        names = c("Turnover", "Nestedness", "Total beta"),
+        main = "Sorensen")
+boxplot(beta.pair(BCI, "jaccard"),
+        names = c("Turnover", "Nestedness", "Total beta"),
+        main = "Jaccard")
+par(mfrow = c(1, 1))
+
+### Exercise 1, calculate and plot beta components (for pairs) according to Jaccard for ceram.s and ceram.n in a multi-panel plot,
+### before doing so inspect the two datasets and calculate overall beta components
+
+data(ceram.s)
+data(ceram.n)
+
+
+######
+
+### Rarefaction
+
+ 
+
+data(dune)
+data(dune.env)
+
+ 
+
+summary(dune.env$A1)
+
+ 
+
+dune_la <- dune[dune.env$A1 <= 4.2, ]
+dune_ha <- dune[dune.env$A1 > 4.2, ]
+
+ 
+
+raremax <- min(rowSums(dune))
+raremax
+
+ 
+
+rarecurve(dune_la, sample = raremax)
+rarecurve(dune_ha, sample = raremax)
+rarefy(dune_la, sample = raremax)
+rarefy(dune_ha, sample = raremax)
+
+ 
+
+dune_la_agg <- colSums(dune_la)
+dune_ha_agg <- colSums(dune_ha)
+
+ 
+
+dune_agg <- rbind(dune_la_agg, dune_ha_agg)
+row.names(dune_agg) <- c("Low A1 Thickness", "High A1 Thickness")
+
+ 
+
+min(rowSums(dune_agg))
+rarecurve(dune_agg, sample = 150)
+rarefy(dune_agg, sample = 150, se = T)
+
+ 
+
+### Rarefaction curves show the expected number of species found in each plot 
+### given an increasing number of sampled individuals
+
+ 
+
+### Analogously, accumulation curves show the expected number of species 
+### given an increasing number of sampled plots, you can check "specaccum" function from vegan
+
+ 
+
+### You can also estimate the number of species found in each plot by using
+### abundance-based species richness estimators, like Chao1 and ACE, you can check "estimateR" function from vegan
+
+ 
+
+### Finally, you can also estimate the number of species in the dataset, or in groups of plots,
+### according to sample-based diversity estimators like Jackknife, you can check "specpool" function from vegan
+
+ 
+
+### BEWARE, these techniques are used for different, although similar, purposes and they hold
+### DIFFERENT degrees of robustness!
+
+ 
+
+ 
+
+### A recent paper on the partioning of beta-diversity of marine benthos in Ionian islands
+### https://doi.org/10.1111/ddi.13025
+
+
+
+################## Second Part of GBIF
+
+## before we have a look at the website and download of occurances, you must register on it. You have to see the licence and download, there are three format you can use the simple one. the DOI of the dataset is attached within the licence.
+## when you open the dataset you will find a classic table of many many works, in our case 224 
+
+### Install rgbif package, more at https://cran.r-project.org/web/packages/rgbif/index.html
+### Check the "reference manual" for a full description of all functions
+### Check "vignettes" for tutorials on different topics related to the package
+# there are others packages with GBIF, but this is the official and cleaner one! work well with API?!?!?
+
+install.packages("rgbif")
+
+### Load the package
+
+library(rgbif)
+
+### How many "observations" in gbif?
+
+occ_count() #to konw all recorded occurences! 
+
+# observation are 100 less of occurences you can find link below to know the difference
+occ_count(basisOfRecord = 'OBSERVATION') # more on different "basisOfRecord" at https://gbif.github.io/gbif-api/apidocs/org/gbif/api/vocabulary/BasisOfRecord.html
+
+### How many "Puma concolor" georeferenced occurences? so to know just one species  Comma...Format spread shifts and you can move it from execl and other to R,Qgis, Grass, in more profetional way you can extract the data directly from R
+
+
+name_suggest(q = "Puma concolor", rank = "species")
+occ_count(taxonKey = 2435099, georeferenced = T)
+
+### How many georeferenced occurences?
+
+occ_count(georeferenced = T)
+
+### How many records from Italy?
+
+ita_code <- isocodes[grep("Italy", isocodes$name), "code"]
+occ_count(country = ita_code)
+
+### How many records from 2019?
+
+occ_count(year = 2019)
+
+### Find occurences of Puma concolor
+
+occ_pc <- occ_search(scientificName = "Puma concolor", limit = 100, hasCoordinate = T)  # the limit is 1000000, but you can choice what you want
+occ_pc  ## you can find lat and long on 3rd and 4th colomn
+plot(occ_pc$data$decimalLongitude, occ_pc$data$decimalLatitude)
+
+occ_pc <- occ_search(taxonKey = 2435099, limit = 100, hasCoordinate = T)
+occ_pc
+plot(occ_pc$data$decimalLongitude, occ_pc$data$decimalLatitude)
+
+### Find occurences of Plants
+
+occ_plants <- occ_search(scientificName = "Plantae", limit = 100, hasCoordinate = T)
+occ_plants
+
+
+
+
+
+
+
+
